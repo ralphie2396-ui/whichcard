@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Which Card</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Which Card">
+<meta name="theme-color" content="#23262B">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --slip:#E7E2D4;--carbon:#232B63;--soft:#767CA0;--stamp:#A8332C;--counter:#23262B;
+  --mono:'Courier New',ui-monospace,Menlo,monospace;
+  --disp:'Avenir Next Condensed','Arial Narrow',system-ui,sans-serif;
+}
+html,body{margin:0;padding:0}
+body{
+  background:var(--counter);
+  background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.014) 0 2px,transparent 2px 5px);
+  font-family:var(--mono);color:var(--carbon);
+  padding:calc(env(safe-area-inset-top) + 20px) 14px calc(env(safe-area-inset-bottom) + 60px);
+  display:flex;flex-direction:column;align-items:center;min-height:100vh;
+}
+.paper{width:100%;max-width:430px;background:var(--slip);padding:26px 22px 30px;position:relative;
+  box-shadow:0 18px 44px rgba(0,0,0,.45);
+  background-image:radial-gradient(rgba(120,110,90,.05) 1px,transparent 1px);background-size:4px 4px;}
+.paper+.paper{margin-top:26px}
+.tt,.tb{position:absolute;left:0;right:0;height:9px;background:repeating-linear-gradient(-45deg,var(--slip) 0 6px,transparent 6px 12px)}
+.tt{top:-8px;transform:scaleY(-1)}.tb{bottom:-8px}
+h1{font-family:var(--disp);font-weight:700;font-size:44px;line-height:.88;margin:0;text-transform:uppercase;letter-spacing:-.5px}
+.eyebrow{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--soft);margin:0 0 8px}
+.rule{border:0;border-top:1px dashed rgba(35,43,99,.35);margin:16px 0}
+.rule-s{border:0;border-top:2px solid var(--carbon);margin:14px 0}
+label.fld{display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);margin-bottom:5px}
+input.txt,select.txt{width:100%;background:transparent;border:0;border-bottom:2px solid var(--carbon);
+  font-family:var(--mono);font-size:17px;color:var(--carbon);padding:6px 2px;border-radius:0;-webkit-appearance:none}
+input.txt::placeholder{color:rgba(118,124,160,.65)}
+input:focus-visible,select:focus-visible,button:focus-visible,textarea:focus-visible{outline:2px solid var(--stamp);outline-offset:3px}
+.row2{display:flex;gap:14px;margin-top:16px}.row2>div{flex:1}
+.toggle{display:flex;border:2px solid var(--carbon);margin-top:16px}
+.toggle button{flex:1;background:transparent;border:0;font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;padding:10px 4px;color:var(--carbon)}
+.toggle button[aria-pressed="true"]{background:var(--carbon);color:var(--slip)}
+.imprint{width:100%;margin-top:18px;background:var(--carbon);color:var(--slip);border:0;font-family:var(--disp);
+  font-weight:700;font-size:22px;letter-spacing:.1em;text-transform:uppercase;padding:14px}
+.imprint:active{transform:translateY(2px)}
+.imprint:disabled{background:rgba(35,43,99,.25)}
+.line{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;padding:3px 0}
+.line b{text-align:right;font-weight:700}
+.line i{color:var(--soft);letter-spacing:.1em;text-transform:uppercase;font-size:10.5px;font-style:normal;padding-top:2px;flex:none}
+.winner{display:flex;gap:12px;margin:4px 0 2px}
+.chip{width:7px;flex:none}
+.wname{font-family:var(--disp);font-weight:700;font-size:31px;line-height:.95;text-transform:uppercase}
+.wsub{font-size:11px;color:var(--soft);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+.total{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px}
+.total i{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);font-style:normal}
+.total b{font-family:var(--disp);font-weight:700;font-size:40px;line-height:1}
+.stamp{border:2px solid var(--stamp);color:var(--stamp);padding:9px 11px;margin-top:16px;transform:rotate(-1.4deg);font-size:11.5px;line-height:1.45}
+.stamp b{font-family:var(--disp);font-size:15px;letter-spacing:.12em;display:block;text-transform:uppercase}
+.note{font-size:11.5px;line-height:1.55;margin:8px 0 0}
+.note.dim{color:var(--soft)}
+.tip{font-size:11.5px;line-height:1.55;padding-left:14px;position:relative;margin-top:9px}
+.tip:before{content:"→";position:absolute;left:0}
+.runner{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:5px 0;border-bottom:1px dotted rgba(35,43,99,.25)}
+.runner b{font-weight:700}.runner s{color:var(--soft);white-space:nowrap;text-decoration:none}
+.tabs{display:flex;gap:8px;width:100%;max-width:430px;margin-top:26px}
+.tabs button{flex:1;background:transparent;color:#D6CFBB;border:1px solid rgba(230,226,212,.3);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;padding:11px 3px}
+.tabs button[aria-pressed="true"]{background:var(--slip);color:var(--carbon);border-color:var(--slip)}
+.cardline{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px dotted rgba(35,43,99,.25)}
+.box{width:17px;height:17px;border:2px solid var(--carbon);flex:none;display:flex;align-items:center;justify-content:center;font-size:12px}
+.cn{font-size:13px;font-weight:700}
+.ct{font-size:10px;color:var(--soft);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.bar{width:4px;align-self:stretch;flex:none}
+.capline{display:flex;gap:8px;font-size:10.5px;color:var(--soft);padding:4px 0 4px 28px;line-height:1.4}
+.cbox{width:13px;height:13px;border:1.5px solid var(--soft);flex:none;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:9px}
+.valrow{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px dotted rgba(35,43,99,.25)}
+.valrow span{flex:1;font-size:12.5px}
+.valrow input{width:66px;background:transparent;border:0;border-bottom:2px solid var(--carbon);font-family:var(--mono);
+  font-size:15px;text-align:right;color:var(--carbon);padding:3px;border-radius:0;-webkit-appearance:none}
+.offerrow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px dotted rgba(35,43,99,.25)}
+.on{font-size:13px;font-weight:700;text-transform:capitalize}
+.ol{font-size:10.5px;color:var(--soft);line-height:1.4;margin-top:2px}
+.mini{background:transparent;border:1px solid rgba(35,43,99,.4);color:var(--soft);font-family:var(--mono);
+  font-size:10px;letter-spacing:.1em;padding:6px 8px;flex:none;text-transform:uppercase}
+.linky{background:transparent;border:0;padding:10px 0 4px;font-family:var(--mono);font-size:11px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--soft);text-decoration:underline}
+.catgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}
+.catgrid button{background:transparent;border:1px solid var(--carbon);color:var(--carbon);font-family:var(--mono);font-size:11px;padding:9px 5px;text-align:left}
+.foot{max-width:430px;font-size:10px;line-height:1.6;color:rgba(230,226,212,.42);margin-top:26px;text-align:center}
+.hide{display:none}
+.print>*{animation:feed .26s ease-out backwards}
+.print>*:nth-child(1){animation-delay:0s}.print>*:nth-child(2){animation-delay:.05s}
+.print>*:nth-child(3){animation-delay:.1s}.print>*:nth-child(4){animation-delay:.15s}
+.print>*:nth-child(5){animation-delay:.2s}.print>*:nth-child(6){animation-delay:.25s}
+.print>*:nth-child(n+7){animation-delay:.3s}
+@keyframes feed{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.print>*{animation:none}.imprint:active{transform:none}}
+</style>
+</head>
+<body>
+
+<div class="paper">
+  <div class="tt"></div>
+  <p class="eyebrow">American Express · charge record</p>
+  <h1>Which<br>card</h1>
+  <hr class="rule">
+  <label class="fld" for="merch">Merchant or what you're buying</label>
+  <input id="merch" class="txt" placeholder="Whole Foods" autocomplete="off" autocapitalize="words">
+  <div class="row2"><div>
+    <label class="fld" for="amt">Amount (optional)</label>
+    <input id="amt" class="txt" inputmode="decimal" placeholder="0.00">
+  </div></div>
+  <div class="toggle" role="group" aria-label="Where are you paying">
+    <button id="inus" aria-pressed="true">In the US</button>
+    <button id="abroad" aria-pressed="false">Outside the US</button>
+  </div>
+  <button class="imprint" id="go">Print the answer</button>
+  <p class="note dim hide" id="setup">Open <b>Wallet</b> below and tick the cards you carry.</p>
+  <div class="tb"></div>
+</div>
+
+<div id="slip"></div>
+<div class="tabs">
+  <button id="tw" aria-pressed="false">Wallet <span id="nw">0</span></button>
+  <button id="to" aria-pressed="false">Offers <span id="no">0</span></button>
+  <button id="tv" aria-pressed="false">Settings</button>
+</div>
+<div id="drawer"></div>
+<p class="foot">Rates checked August 2026. Amex changes terms — your own card agreement always wins.</p>
+
+<script>
+/* ── data ─────────────────────────────────────────────── */
+const CATS={dining:"Restaurants",groceries_us:"US supermarkets",gas_us:"US gas stations",
+transit:"Transit & rideshare",flights:"Flights",hotel_amex:"Prepaid hotel via Amex Travel",
+hotel_other:"Hotels booked direct",hilton:"Hilton properties",marriott:"Marriott properties",
+delta:"Delta",car_rental:"Car rental",online_retail_us:"US online retail",
+streaming_us:"US streaming",other:"Everything else"};
+const US_ONLY=["groceries_us","gas_us","online_retail_us","streaming_us"];
+const CUR={MR:{label:"Membership Rewards",d:2.0},CASH:{label:"Cash back",d:1.0,lock:1},
+DELTA:{label:"Delta SkyMiles",d:1.2},HILTON:{label:"Hilton Honors",d:0.5},MARRIOTT:{label:"Marriott Bonvoy",d:0.7}};
+
+const CARDS=[
+{id:"plat",name:"The Platinum Card",tier:"Charge · $895",cur:"MR",fx:0,bar:"#8E9AA6",
+ earn:{flights:5,hotel_amex:5,other:1},caps:{flights:"5x on the first $500,000 of flights each year"}},
+{id:"gold",name:"American Express Gold",tier:"Charge · $325",cur:"MR",fx:0,bar:"#C8A24A",
+ earn:{dining:4,groceries_us:4,hotel_amex:5,flights:3,car_rental:2,other:1},
+ caps:{dining:"4x on the first $50,000 of dining each year",groceries_us:"4x on the first $25,000 of groceries each year"},
+ note:{car_rental:"2x applies to prepaid car hire booked through Amex Travel."}},
+{id:"green",name:"American Express Green",tier:"Charge · $150",cur:"MR",fx:0,bar:"#3D6B50",
+ earn:{dining:3,transit:3,flights:3,hotel_other:3,hotel_amex:3,car_rental:3,other:1}},
+{id:"bbp",name:"Blue Business Plus",tier:"Credit · $0",cur:"MR",fx:.027,bar:"#2E5AAC",
+ earn:{dining:2,groceries_us:2,gas_us:2,transit:2,flights:2,hotel_other:2,hotel_amex:2,hilton:2,marriott:2,delta:2,car_rental:2,online_retail_us:2,streaming_us:2,other:2},
+ caps:{other:"2x on the first $50,000 of total spend each year"}},
+{id:"edp",name:"Amex EveryDay Preferred",tier:"Credit · $95",cur:"MR",fx:.027,bar:"#5B6EC4",
+ earn:{groceries_us:3,gas_us:2,other:1},caps:{groceries_us:"3x on the first $6,000 of groceries each year"},
+ note:{other:"Add a 50% points bonus with 30+ transactions in a billing period."}},
+{id:"bcp",name:"Blue Cash Preferred",tier:"Credit · $95",cur:"CASH",fx:.027,bar:"#1F4FA3",
+ earn:{groceries_us:6,streaming_us:6,gas_us:3,transit:3,other:1},
+ caps:{groceries_us:"6% on the first $6,000 of groceries each year"}},
+{id:"bce",name:"Blue Cash Everyday",tier:"Credit · $0",cur:"CASH",fx:.027,bar:"#6FA8DC",
+ earn:{groceries_us:3,gas_us:3,online_retail_us:3,other:1},
+ caps:{groceries_us:"3% on the first $6,000 of groceries each year",gas_us:"3% on the first $6,000 of fuel each year",online_retail_us:"3% on the first $6,000 of online retail each year"}},
+{id:"magnet",name:"Cash Magnet",tier:"Credit · $0",cur:"CASH",fx:.027,bar:"#9AA3AD",
+ earn:{dining:1.5,groceries_us:1.5,gas_us:1.5,transit:1.5,flights:1.5,hotel_other:1.5,hotel_amex:1.5,hilton:1.5,marriott:1.5,delta:1.5,car_rental:1.5,online_retail_us:1.5,streaming_us:1.5,other:1.5}},
+{id:"dgold",name:"Delta SkyMiles Gold",tier:"Credit · $150",cur:"DELTA",fx:0,bar:"#B5A16B",
+ earn:{delta:2,dining:2,groceries_us:2,other:1}},
+{id:"dplat",name:"Delta SkyMiles Platinum",tier:"Credit · $350",cur:"DELTA",fx:0,bar:"#7E8894",
+ earn:{delta:3,hotel_other:3,hotel_amex:3,dining:2,groceries_us:2,other:1}},
+{id:"dres",name:"Delta SkyMiles Reserve",tier:"Credit · $650",cur:"DELTA",fx:0,bar:"#3B4A5A",
+ earn:{delta:3,other:1}},
+{id:"hil",name:"Hilton Honors",tier:"Credit · $0",cur:"HILTON",fx:0,bar:"#1D4E89",
+ earn:{hilton:7,dining:5,groceries_us:5,gas_us:5,other:3}},
+{id:"hsur",name:"Hilton Honors Surpass",tier:"Credit · $150",cur:"HILTON",fx:0,bar:"#14355E",
+ earn:{hilton:12,dining:6,groceries_us:6,gas_us:6,online_retail_us:4,other:3}},
+{id:"hasp",name:"Hilton Honors Aspire",tier:"Credit · $550",cur:"HILTON",fx:0,bar:"#0D2340",
+ earn:{hilton:14,flights:7,car_rental:7,dining:7,other:3}},
+{id:"bevy",name:"Marriott Bonvoy Bevy",tier:"Credit · $250",cur:"MARRIOTT",fx:0,bar:"#8B4A52",
+ earn:{marriott:6,dining:4,groceries_us:4,other:2}},
+{id:"brill",name:"Marriott Bonvoy Brilliant",tier:"Credit · $650",cur:"MARRIOTT",fx:0,bar:"#5E2C33",
+ earn:{marriott:6,dining:3,flights:3,other:2}}];
+
+const M=[
+["walmart,wal-mart","other","superstore","Walmart"],["target","other","superstore","Target"],
+["costco","other","warehouse","Costco"],["sam's club,sams club","other","warehouse","Sam's Club"],
+["bj's,bjs wholesale","other","warehouse","BJ's"],
+["whole foods","groceries_us",0,"Whole Foods"],["trader joe","groceries_us",0,"Trader Joe's"],
+["smith's,smiths","groceries_us",0,"Smith's"],["albertsons","groceries_us",0,"Albertsons"],
+["vons","groceries_us",0,"Vons"],["kroger","groceries_us",0,"Kroger"],["safeway","groceries_us",0,"Safeway"],
+["publix","groceries_us",0,"Publix"],["sprouts","groceries_us",0,"Sprouts"],["ralphs","groceries_us",0,"Ralphs"],
+["h-e-b,heb","groceries_us",0,"H-E-B"],["wegmans","groceries_us",0,"Wegmans"],["aldi","groceries_us",0,"Aldi"],
+["winco","groceries_us",0,"WinCo"],["grocery,groceries,supermarket","groceries_us",0,"Supermarket"],
+["tesco,sainsbury,asda,waitrose,morrisons,lidl,co-op","groceries_us",0,"UK supermarket",1],
+["restaurant,dinner,lunch,cafe,coffee,pub","dining",0,"Restaurant"],
+["starbucks","dining",0,"Starbucks"],["chipotle","dining",0,"Chipotle"],["mcdonald","dining",0,"McDonald's"],
+["in-n-out,in n out","dining",0,"In-N-Out"],["doordash","dining",0,"DoorDash"],["uber eats","dining",0,"Uber Eats"],
+["grubhub","dining",0,"Grubhub"],["deliveroo,just eat","dining",0,"Food delivery",1],
+["boa steakhouse,boa","dining",0,"BOA Steakhouse"],["resy","dining",0,"Resy restaurant"],
+["shell","gas_us",0,"Shell"],["chevron","gas_us",0,"Chevron"],["exxon,mobil","gas_us",0,"Exxon Mobil"],
+["arco","gas_us",0,"Arco"],["circle k","gas_us",0,"Circle K"],["terrible,rebel","gas_us",0,"Terrible Herbst / Rebel"],
+["gas station,petrol,fuel,gasoline","gas_us",0,"Fuel"],
+["uber","transit",0,"Uber"],["lyft","transit",0,"Lyft"],["amtrak","transit",0,"Amtrak"],["rtc","transit",0,"RTC Las Vegas"],
+["parking,toll,taxi,cab,metro,subway,train,rail","transit",0,"Transit"],
+["delta","delta",0,"Delta"],
+["united,american airlines,southwest,alaska air,jetblue,spirit,frontier","flights",0,"Airline"],
+["british airways,klm,air france,virgin atlantic,tap air,ryanair,easyjet","flights",0,"Airline"],
+["flight,airfare,plane ticket,airline","flights",0,"Flight"],
+["amex travel,amextravel","hotel_amex",0,"Amex Travel"],
+["hilton,doubletree,hampton inn,waldorf,conrad,embassy suites,curio,canopy","hilton",0,"Hilton family"],
+["marriott,ritz,westin,sheraton,st regis,courtyard,residence inn,aloft,moxy","marriott",0,"Marriott family"],
+["hyatt,ihg,holiday inn,kimpton,intercontinental,accor,premier inn,travelodge","hotel_other",0,"Hotel"],
+["wynn,bellagio,caesars,mgm,aria,venetian,cosmopolitan,resorts world","hotel_other",0,"Las Vegas resort"],
+["hotel,airbnb,booking.com,expedia,vrbo","hotel_other",0,"Accommodation"],
+["hertz,avis,enterprise,sixt,budget rent,national car,europcar,car hire,car rental,rental car","car_rental",0,"Car hire"],
+["amazon","online_retail_us",0,"Amazon"],["ebay","online_retail_us",0,"eBay"],["etsy","online_retail_us",0,"Etsy"],
+["wayfair","online_retail_us",0,"Wayfair"],["best buy","online_retail_us",0,"Best Buy"],
+["nordstrom,macy","online_retail_us",0,"Department store"],["online,web order","online_retail_us",0,"Online retail"],
+["netflix","streaming_us",0,"Netflix"],["spotify","streaming_us",0,"Spotify"],["disney","streaming_us",0,"Disney+"],
+["hulu","streaming_us",0,"Hulu"],["youtube","streaming_us",0,"YouTube"],["hbo","streaming_us",0,"HBO Max"],
+["peacock","streaming_us",0,"Peacock"],["f1 tv,sky sports,espn","streaming_us",0,"Sports streaming"],
+["streaming,subscription","streaming_us",0,"Streaming"],
+["pharmacy,cvs,walgreens","other",0,"Pharmacy"],
+["utility,electric,water bill,internet,phone bill","other",0,"Utilities"],["rent","other",0,"Rent"]];
+
+/* ── state ────────────────────────────────────────────── */
+const DEF={held:[],values:Object.fromEntries(Object.entries(CUR).map(([k,v])=>[k,v.d])),capped:[],offers:[],key:"",
+  gh:{token:"",gist:""},updatedAt:0};
+let S=Object.assign({},DEF);
+try{const r=localStorage.getItem("whichcard");if(r)S=Object.assign({},DEF,JSON.parse(r));}catch(e){}
+let pushTimer=null;
+function save(quiet){
+  if(!quiet)S.updatedAt=Date.now();
+  try{localStorage.setItem("whichcard",JSON.stringify(S));}catch(e){}
+  if(!quiet&&S.gh.token&&S.gh.gist){clearTimeout(pushTimer);pushTimer=setTimeout(()=>push().catch(()=>{}),1500);}
+}
+
+/* ── sync via a private GitHub gist ───────────────────── */
+const GH="https://api.github.com/gists";
+function ghHeaders(){return{Authorization:"Bearer "+S.gh.token,Accept:"application/vnd.github+json","Content-Type":"application/json"};}
+function payload(){return JSON.stringify({held:S.held,values:S.values,capped:S.capped,offers:S.offers,updatedAt:S.updatedAt},null,1);}
+
+async function push(){
+  if(!S.gh.token)throw new Error("no token");
+  const body={files:{"whichcard.json":{content:payload()}}};
+  let res;
+  if(S.gh.gist){
+    res=await fetch(GH+"/"+S.gh.gist,{method:"PATCH",headers:ghHeaders(),body:JSON.stringify(body)});
+  }else{
+    res=await fetch(GH,{method:"POST",headers:ghHeaders(),
+      body:JSON.stringify(Object.assign({description:"Which Card sync",public:false},body))});
+  }
+  if(!res.ok)throw new Error(res.status===401?"Token rejected":"GitHub said "+res.status);
+  const j=await res.json();
+  if(!S.gh.gist){S.gh.gist=j.id;save(true);}
+  setSync("Saved to sync "+new Date().toLocaleTimeString());
+  return j.id;
+}
+
+async function pull(){
+  if(!S.gh.token||!S.gh.gist)throw new Error("not set up");
+  const res=await fetch(GH+"/"+S.gh.gist+"?t="+Date.now(),{headers:ghHeaders()});
+  if(!res.ok)throw new Error(res.status===401?"Token rejected — check it has gist access":
+    res.status===404?"Sync ID not found on this account":"GitHub said "+res.status);
+  const j=await res.json();
+  const f=j.files&&j.files["whichcard.json"];
+  if(!f)throw new Error("Sync file is empty");
+  const remote=JSON.parse(f.truncated?await(await fetch(f.raw_url)).text():f.content);
+  if((remote.updatedAt||0)>(S.updatedAt||0)){
+    S.held=remote.held||[];S.values=Object.assign({},DEF.values,remote.values||{});
+    S.capped=remote.capped||[];S.offers=remote.offers||[];S.updatedAt=remote.updatedAt||0;
+    save(true);paint();
+    setSync("Pulled newer data from your other device");
+    return "pulled";
+  }
+  setSync("Already up to date");
+  return "current";
+}
+
+async function syncNow(){
+  setSync("Syncing…");
+  try{
+    if(S.gh.gist)await pull();
+    await push();
+  }catch(e){setSync(e.message||"Sync failed");}
+}
+function setSync(msg){const el=document.getElementById("syncstat");if(el)el.textContent=msg;}
+const card=id=>CARDS.find(c=>c.id===id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ── logic ────────────────────────────────────────────── */
+function lookup(q){
+  const s=q.trim().toLowerCase();if(!s)return null;let best=null;
+  for(const [keys,c,flag,name,nonus] of M)
+    for(const k of keys.split(","))
+      if(s.includes(k)&&(!best||k.length>best.len))best={c,flag:flag||null,name,nonus:!!nonus,len:k.length};
+  return best;
+}
+function daysLeft(iso){if(!iso)return null;const d=Math.ceil((new Date(iso)-new Date())/864e5);return isNaN(d)?null:d;}
+function liveOffers(q,name){
+  const hay=(q+" "+(name||"")).toLowerCase();
+  return S.offers.filter(o=>{
+    if(!o.merchant||o.used)return false;
+    const l=daysLeft(o.expires);if(l!==null&&l<0)return false;
+    const m=o.merchant.toLowerCase();
+    return hay.includes(m)||m.includes(hay.trim());
+  });
+}
+function boostOf(o,amt){
+  if(!amt||amt<=0)return null;
+  if(o.kind==="percent")return +o.back;
+  if(o.minSpend&&amt<o.minSpend)return 0;
+  return (+o.back/amt)*100;
+}
+function rank(cat,abroad,amt,offers){
+  let eff=cat,down=false;
+  if(abroad&&US_ONLY.includes(cat)){eff="other";down=true;}
+  const rows=S.held.map(card).filter(Boolean).map(c=>{
+    const key=c.id+":"+eff;
+    const capped=S.capped.includes(key)&&c.caps&&c.caps[eff];
+    const rate=capped?(c.earn.other??1):(c.earn[eff]??c.earn.other??1);
+    const cpp=c.cur==="CASH"?1:S.values[c.cur];
+    const net=rate*cpp-(abroad?c.fx*100:0);
+    const off=offers.find(o=>o.cardId===c.id)||offers.find(o=>!o.cardId)||null;
+    const boost=off?boostOf(off,amt):null;
+    return {c,rate,net,capped,capNote:(c.caps||{})[eff]||null,extra:(c.note||{})[eff]||null,
+            fx:abroad?c.fx*100:0,offer:off,boost,total:net+(boost||0)};
+  }).sort((a,b)=>b.total-a.total||b.net-a.net);
+  return {rows,eff,down};
+}
+function tips(cat,flag,abroad){
+  const t=[],has=id=>S.held.includes(id);
+  if(flag==="superstore")t.push("Amex codes this as a superstore, not a supermarket, so no grocery bonus fires. The same shop at a traditional supermarket earns 4x on Gold or 6% on Blue Cash Preferred.");
+  if(flag==="warehouse")t.push("Warehouse clubs don't count as US supermarkets on any Amex. Buy the same items at a regular supermarket and the multiplier applies.");
+  if((cat==="hotel_other"||cat==="hilton"||cat==="marriott")&&(has("gold")||has("plat")))
+    t.push("Prepaying the same stay through Amex Travel earns 5x on Gold and Platinum. Weigh that against losing elite credit and flexible cancellation.");
+  if(cat==="flights"&&has("plat"))
+    t.push("Platinum pays 5x whether you book with the airline or through Amex Travel, so book direct and keep the airline's own change rules.");
+  if(cat==="online_retail_us"&&has("bce"))
+    t.push("Buying online rather than in store puts this in the 3% online retail category on Blue Cash Everyday.");
+  if(abroad)t.push("Outside the US the US-only categories stop paying a bonus, and any card with a foreign transaction fee loses more than it earns. Gold, Platinum, Green and the co-brands charge no FX fee.");
+  return t;
+}
+
+/* ── ui ───────────────────────────────────────────────── */
+let abroad=false,drawer=null,busy=false;
+const $=id=>document.getElementById(id);
+const slipEl=$("slip"),drawEl=$("drawer");
+
+function refreshCounts(){
+  $("nw").textContent="("+S.held.length+")";
+  $("no").textContent="("+S.offers.filter(o=>!o.used&&(daysLeft(o.expires)??1)>=0).length+")";
+  $("setup").classList.toggle("hide",S.held.length>0);
+  $("go").disabled=busy||S.held.length===0;
+  $("go").textContent=busy?"Reading…":(S.held.length?"Print the answer":"Add your cards first");
+}
+$("inus").onclick=()=>{abroad=false;$("inus").setAttribute("aria-pressed","true");$("abroad").setAttribute("aria-pressed","false");};
+$("abroad").onclick=()=>{abroad=true;$("abroad").setAttribute("aria-pressed","true");$("inus").setAttribute("aria-pressed","false");};
+$("merch").addEventListener("keydown",e=>{if(e.key==="Enter"){e.target.blur();go();}});
+$("amt").addEventListener("keydown",e=>{if(e.key==="Enter"){e.target.blur();go();}});
+$("go").onclick=()=>go();
+
+async function go(override){
+  const q=$("merch").value.trim();
+  if(!q||S.held.length===0)return;
+  let hit=override?{c:override,name:q,flag:null,nonus:false}:lookup(q),src="list";
+  if(!hit&&S.key){
+    busy=true;refreshCounts();
+    try{hit=await aiCategory(q);src="ai";}catch(e){}
+    busy=false;refreshCounts();
+  }
+  if(!hit){askCategory(q);return;}
+  const ab=abroad||hit.nonus;
+  const amt=parseFloat($("amt").value)||0;
+  const live=liveOffers(q,hit.name);
+  const {rows,eff,down}=rank(hit.c,ab,amt,live);
+  render({q,merchant:hit.name||q,cat:hit.c,eff,down,ab,amt,rows,live,src,
+          tips:tips(hit.c,hit.flag,ab),why:hit.why});
+}
+
+function askCategory(q){
+  slipEl.innerHTML='<div class="paper"><div class="tt"></div><p class="eyebrow">Unrecognised merchant</p>'+
+    '<p class="note">I couldn\'t place "'+esc(q)+'". Pick the closest category.</p><div class="catgrid">'+
+    Object.entries(CATS).map(([k,v])=>'<button data-c="'+k+'">'+v+'</button>').join("")+
+    '</div><div class="tb"></div></div>';
+  slipEl.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>go(b.dataset.c));
+  slipEl.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function render(r){
+  const t=r.rows[0],runners=r.rows.slice(1,4);
+  const pts=t.c.cur==="CASH"?t.rate+"¢ back":t.rate+" pts · worth "+(t.rate*S.values[t.c.cur]).toFixed(1)+"¢";
+  let h='<div class="paper print"><div class="tt"></div>';
+  h+='<div class="line"><i>Merchant</i><b>'+esc(r.merchant.toUpperCase())+'</b></div>';
+  h+='<div class="line"><i>Codes as</i><b>'+(r.down
+     ?'<span style="opacity:.5;text-decoration:line-through">'+CATS[r.cat].toUpperCase()+'</span><br>'+CATS[r.eff].toUpperCase()
+     :CATS[r.eff].toUpperCase())+'</b></div>';
+  if(r.ab)h+='<div class="line"><i>Paying</i><b>OUTSIDE THE US</b></div>';
+  if(r.amt>0)h+='<div class="line"><i>Amount</i><b>$'+r.amt.toFixed(2)+'</b></div>';
+  h+='<hr class="rule-s">';
+  h+='<div class="winner"><div class="chip" style="background:'+t.c.bar+'"></div><div>'+
+     '<div class="wname">'+esc(t.c.name)+'</div><div class="wsub">'+t.rate+
+     (t.c.cur==="CASH"?"% back":"x points")+' · '+t.c.tier+'</div></div></div>';
+  h+='<div class="total"><i>Effective return</i><b>'+t.total.toFixed(1)+'%</b></div>';
+  h+='<div class="line" style="margin-top:6px"><i>Per $1 spent</i><b>'+pts+'</b></div>';
+  if(r.amt>0)h+='<div class="line"><i>On $'+r.amt.toFixed(2)+'</i><b>'+
+    (t.c.cur!=="CASH"?Math.round(r.amt*t.rate).toLocaleString()+" pts · ~$"+((r.amt*t.total)/100).toFixed(2)
+     :"$"+((r.amt*t.total)/100).toFixed(2))+'</b></div>';
+  if(t.rate<=1&&!t.offer)h+='<p class="note">Nothing in your wallet earns a bonus here. This is a base-rate purchase whichever card you pull out.</p>';
+  if(t.capped)h+='<p class="note dim">You\'ve marked this card\'s cap as reached, so it\'s on the base rate.</p>';
+  else if(t.capNote)h+='<p class="note dim">'+t.capNote+'</p>';
+  if(t.extra)h+='<p class="note dim">'+t.extra+'</p>';
+  if(t.fx>0)h+='<p class="note dim">Includes a '+t.fx.toFixed(1)+'% foreign transaction fee deducted from the return.</p>';
+  if(r.src==="ai"&&r.why)h+='<p class="note dim">Categorised on the fly: '+esc(r.why)+'.</p>';
+
+  if(t.offer){
+    h+='<div class="stamp"><b>Offer live on this card</b>'+esc(t.offer.label);
+    const l=daysLeft(t.offer.expires);if(l!==null)h+=' · '+l+' days left';
+    if(t.boost>0)h+='<br>Adds '+t.boost.toFixed(1)+'% here, taking you to '+t.total.toFixed(1)+'% all in.';
+    else if(t.boost===0&&t.offer.minSpend)h+='<br>Needs $'+t.offer.minSpend+' to trigger.';
+    else if(t.boost===null)h+='<br>Enter an amount to see if the offer beats the points.';
+    h+='<br>Make sure it\'s activated in the Amex app before you pay.</div>';
+  }else if(r.live.length){
+    h+='<div class="stamp"><b>Offer on another card</b>'+esc(r.live[0].label)+' — saved against a card that isn\'t the points winner here.</div>';
+  }else if(!S.offers.length){
+    h+='<p class="note dim">No offers saved. Add them in the Offers drawer and they\'ll compete in this ranking.</p>';
+  }
+  if(runners.length){
+    h+='<hr class="rule"><p class="eyebrow" style="margin:0 0 6px">Next best</p>';
+    runners.forEach(x=>h+='<div class="runner"><b>'+esc(x.c.name)+
+      (x.offer?' <span style="color:var(--stamp)">· offer</span>':'')+'</b><s>'+x.rate+
+      (x.c.cur==="CASH"?"%":"x")+' · '+x.total.toFixed(1)+'%</s></div>');
+  }
+  if(r.tips.length){
+    h+='<hr class="rule"><p class="eyebrow" style="margin:0 0 4px">Worth doing differently</p>';
+    r.tips.forEach(x=>h+='<p class="tip">'+x+'</p>');
+  }
+  h+='<div class="tb"></div></div>';
+  slipEl.innerHTML=h;
+  slipEl.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+/* ── drawers ──────────────────────────────────────────── */
+function tab(name){drawer=drawer===name?null:name;
+  ["w","o","v"].forEach(k=>$("t"+k).setAttribute("aria-pressed",String(drawer==={w:"wallet",o:"offers",v:"values"}[k])));
+  paint();}
+$("tw").onclick=()=>tab("wallet");$("to").onclick=()=>tab("offers");$("tv").onclick=()=>tab("values");
+
+function paint(){
+  refreshCounts();
+  if(!drawer){drawEl.innerHTML="";return;}
+  if(drawer==="wallet")paintWallet();
+  if(drawer==="offers")paintOffers();
+  if(drawer==="values")paintValues();
+}
+
+function paintWallet(){
+  let h='<div class="paper"><div class="tt"></div><p class="eyebrow">Tick what you carry</p>';
+  CARDS.forEach(c=>{
+    const on=S.held.includes(c.id);
+    h+='<div class="cardline" data-card="'+c.id+'" role="checkbox" tabindex="0" aria-checked="'+on+'">'+
+       '<div class="box">'+(on?"✕":"")+'</div><div class="bar" style="background:'+c.bar+'"></div>'+
+       '<div style="flex:1"><div class="cn">'+c.name+'</div><div class="ct">'+c.tier+' · '+CUR[c.cur].label+
+       (c.fx?' · '+(c.fx*100).toFixed(1)+'% FX fee':' · no FX fee')+'</div></div></div>';
+    if(on&&c.caps)Object.entries(c.caps).forEach(([cat,txt])=>{
+      const k=c.id+":"+cat,done=S.capped.includes(k);
+      h+='<div class="capline" data-cap="'+k+'" role="checkbox" tabindex="0" aria-checked="'+done+'">'+
+         '<div class="cbox">'+(done?"✕":"")+'</div><span>'+txt+' — '+(done?"cap reached":"tick when you hit it")+'</span></div>';
+    });
+  });
+  h+='<div class="tb"></div></div>';
+  drawEl.innerHTML=h;
+  drawEl.querySelectorAll("[data-card]").forEach(el=>{
+    const f=()=>{const id=el.dataset.card;
+      S.held=S.held.includes(id)?S.held.filter(x=>x!==id):S.held.concat(id);save();paintWallet();};
+    el.onclick=f;el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();f();}};
+  });
+  drawEl.querySelectorAll("[data-cap]").forEach(el=>{
+    const f=()=>{const k=el.dataset.cap;
+      S.capped=S.capped.includes(k)?S.capped.filter(x=>x!==k):S.capped.concat(k);save();paintWallet();};
+    el.onclick=f;el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();f();}};
+  });
+}
+
+function paintOffers(){
+  const held=CARDS.filter(c=>S.held.includes(c.id));
+  let h='<div class="paper"><div class="tt"></div><p class="eyebrow">Add an offer</p>'+
+    '<p class="note dim" style="margin-bottom:12px">Amex doesn\'t publish your offers anywhere a tool can read, so they go in here. Once saved they compete in the ranking.</p>'+
+    '<label class="fld" for="om">Merchant</label><input id="om" class="txt" placeholder="shell" autocapitalize="none">'+
+    '<div class="row2"><div><label class="fld" for="ok">Type</label><select id="ok" class="txt">'+
+    '<option value="statement">$ back</option><option value="percent">% back</option></select></div>'+
+    '<div><label class="fld" for="ob">Amount</label><input id="ob" class="txt" inputmode="decimal" placeholder="10"></div></div>'+
+    '<div class="row2"><div><label class="fld" for="os">Min spend</label><input id="os" class="txt" inputmode="decimal" placeholder="50"></div>'+
+    '<div><label class="fld" for="oe">Expires</label><input id="oe" class="txt" type="date"></div></div>'+
+    '<label class="fld" style="margin-top:16px" for="oc">Card</label><select id="oc" class="txt"><option value="">Any card</option>'+
+    held.map(c=>'<option value="'+c.id+'">'+c.name+'</option>').join("")+'</select>'+
+    '<button class="imprint" id="oadd">Save offer</button>';
+  if(S.key)h+='<button class="linky" id="oshot">Or import from screenshots</button>'+
+    '<input type="file" id="ofile" accept="image/*" multiple style="display:none">'+
+    '<p class="note dim" id="ostat"></p>';
+  else h+='<p class="note dim">Add an API key in Values to import offers straight from Amex app screenshots.</p>';
+
+  if(S.offers.length){
+    h+='<hr class="rule"><p class="eyebrow" style="margin:0 0 6px">Saved · '+S.offers.length+'</p>';
+    S.offers.forEach((o,i)=>{
+      const l=daysLeft(o.expires),dead=o.used||(l!==null&&l<0),c=card(o.cardId);
+      h+='<div class="offerrow" style="opacity:'+(dead?.42:1)+'"><div style="flex:1">'+
+         '<div class="on">'+esc(o.merchant)+(dead?" · done":"")+'</div><div class="ol">'+esc(o.label)+
+         (c?" · "+c.name:"")+(l!==null&&l>=0?" · "+l+"d left":"")+'</div></div>'+
+         '<button class="mini" data-use="'+i+'">'+(o.used?"undo":"used")+'</button>'+
+         '<button class="mini" data-del="'+i+'" aria-label="Delete">✕</button></div>';
+    });
+  }
+  h+='<div class="tb"></div></div>';
+  drawEl.innerHTML=h;
+
+  $("oadd").onclick=()=>{
+    const m=$("om").value.trim().toLowerCase(),b=parseFloat($("ob").value)||0,k=$("ok").value;
+    if(!m||!b){$("om").focus();return;}
+    const s=parseFloat($("os").value)||null;
+    S.offers.push({merchant:m,kind:k,back:b,minSpend:s,cardId:$("oc").value||null,expires:$("oe").value||null,used:false,
+      label:(k==="percent"?b+"% back":"Spend $"+(s||0)+", get $"+b+" back")});
+    save();paintOffers();
+  };
+  drawEl.querySelectorAll("[data-use]").forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.use;S.offers[i].used=!S.offers[i].used;save();paintOffers();});
+  drawEl.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{
+    S.offers.splice(+b.dataset.del,1);save();paintOffers();});
+  if(S.key){
+    $("oshot").onclick=()=>$("ofile").click();
+    $("ofile").onchange=e=>{importShots(e.target.files);e.target.value="";};
+  }
+}
+
+function paintValues(){
+  let h='<div class="paper"><div class="tt"></div><p class="eyebrow">Cents per point</p>'+
+    '<p class="note dim" style="margin-bottom:6px">Each card\'s rate is multiplied by what you think its currency is worth. Lower these if you cash out rather than transfer.</p>';
+  Object.entries(CUR).forEach(([k,v])=>{
+    h+='<div class="valrow"><span>'+v.label+'</span><input type="number" step="0.1" min="0" max="10" '+
+       (v.lock?"disabled ":"")+'value="'+S.values[k]+'" data-cur="'+k+'" aria-label="'+v.label+' value in cents"><span style="flex:none;font-size:12px;color:var(--soft)">¢</span></div>';
+  });
+  h+='<hr class="rule"><p class="eyebrow">Sync across devices</p>'+
+     '<p class="note dim" style="margin-bottom:8px">Keeps your cards and offers in a private GitHub gist so both phones see the same data. Make a token at github.com/settings/tokens → Generate new token (classic) → tick only <b>gist</b>. Paste the same token on every device.</p>'+
+     '<label class="fld" for="ghtok">GitHub token</label>'+
+     '<input id="ghtok" class="txt" placeholder="ghp_…" value="'+esc(S.gh.token)+'" autocapitalize="none" autocomplete="off">'+
+     '<label class="fld" style="margin-top:14px" for="ghgist">Sync ID</label>'+
+     '<input id="ghgist" class="txt" placeholder="created automatically on first device" value="'+esc(S.gh.gist)+'" autocapitalize="none" autocomplete="off">'+
+     '<button class="imprint" id="savegh">Save and sync now</button>'+
+     '<p class="note dim" id="syncstat">'+(S.gh.gist?"Sync ID set. Copy it to your other phone along with the token.":"Not set up yet.")+'</p>'+
+     '<hr class="rule"><p class="eyebrow">Anthropic API key (optional)</p>'+
+     '<p class="note dim" style="margin-bottom:8px">Only needed for screenshot offer import and identifying merchants that aren\'t in the built-in list. Stored on this device only. Usage is billed to your own Anthropic account.</p>'+
+     '<input id="apikey" class="txt" placeholder="sk-ant-…" value="'+esc(S.key)+'" autocapitalize="none" autocomplete="off">'+
+     '<button class="imprint" id="savekey">Save key</button>'+
+     '<button class="linky" id="reset">Reset everything</button><div class="tb"></div></div>';
+  drawEl.innerHTML=h;
+  drawEl.querySelectorAll("[data-cur]").forEach(i=>i.onchange=()=>{
+    S.values[i.dataset.cur]=parseFloat(i.value)||0;save();});
+  $("savegh").onclick=async()=>{
+    S.gh.token=$("ghtok").value.trim();S.gh.gist=$("ghgist").value.trim();
+    save(true);
+    if(!S.gh.token){setSync("Paste a token first.");return;}
+    await syncNow();
+    $("ghgist").value=S.gh.gist;
+  };
+  $("savekey").onclick=()=>{S.key=$("apikey").value.trim();save();paintValues();};
+  $("reset").onclick=()=>{if(confirm("Clear all cards, offers and settings?")){S=JSON.parse(JSON.stringify(DEF));save();drawer=null;slipEl.innerHTML="";paint();}};
+}
+
+/* ── optional Claude calls ────────────────────────────── */
+async function callClaude(content){
+  const res=await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","x-api-key":S.key,
+      "anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content}]})
+  });
+  const d=await res.json();
+  if(d.error)throw new Error(d.error.message||"api error");
+  const txt=d.content.filter(b=>b.type==="text").map(b=>b.text).join("");
+  return JSON.parse(txt.replace(/```json|```/g,"").trim());
+}
+async function aiCategory(q){
+  const j=await callClaude([{type:"text",text:
+`Classify this merchant for American Express US bonus-category purposes: "${q}".
+Choose exactly one from: ${Object.keys(CATS).join(", ")}
+Warehouse clubs (Costco, Sam's Club) and superstores (Walmart, Target) are "other". Only traditional grocery stores are groceries_us.
+Reply with ONLY JSON: {"name":"clean name","category":"one_of_them","flag":null or "superstore" or "warehouse","why":"under 12 words"}`}]);
+  if(!CATS[j.category])throw new Error("bad category");
+  return {c:j.category,name:j.name||q,flag:j.flag||null,nonus:false,why:j.why};
+}
+async function importShots(files){
+  if(!files||!files.length)return;
+  const stat=$("ostat");stat.textContent="Reading screenshots…";
+  try{
+    const blocks=[];
+    for(const f of Array.from(files).slice(0,5)){
+      const b64=await new Promise((res,rej)=>{const r=new FileReader();
+        r.onload=()=>res(r.result.split(",")[1]);r.onerror=()=>rej();r.readAsDataURL(f);});
+      blocks.push({type:"image",source:{type:"base64",media_type:f.type||"image/jpeg",data:b64}});
+    }
+    const held=CARDS.filter(c=>S.held.includes(c.id)).map(c=>c.id+" = "+c.name).join("; ");
+    blocks.push({type:"text",text:
+`Extract every American Express Offer shown. Today is ${new Date().toISOString().slice(0,10)}.
+Cards held: ${held||"unknown"}
+Reply with ONLY a JSON array. Each element:
+{"merchant":"short lowercase name for matching","label":"human readable offer","kind":"statement" or "percent","back":number,"minSpend":number or null,"cardId":one of the ids above or null,"expires":"YYYY-MM-DD" or null}
+If none, reply []`});
+    const arr=await callClaude(blocks);
+    if(!Array.isArray(arr)||!arr.length){stat.textContent="No offers found in those images.";return;}
+    const seen=new Set(S.offers.map(o=>o.merchant+"|"+o.label));
+    const fresh=arr.filter(o=>!seen.has(o.merchant+"|"+o.label));
+    S.offers=S.offers.concat(fresh.map(o=>Object.assign({used:false},o)));
+    save();paintOffers();
+    $("ostat").textContent="Added "+fresh.length+" offer(s). Check the dates.";
+  }catch(e){stat.textContent="Couldn't read those. Try one screen at a time.";}
+}
+
+/* ── boot ─────────────────────────────────────────────── */
+refreshCounts();
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+
+if(S.gh.token&&S.gh.gist)pull().catch(()=>{});
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible"&&S.gh.token&&S.gh.gist)pull().catch(()=>{});
+});
+window.addEventListener("online",()=>{if(S.gh.token&&S.gh.gist)syncNow().catch(()=>{});});
+</script>
+</body>
+</html>
